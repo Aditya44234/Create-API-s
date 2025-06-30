@@ -21,6 +21,8 @@ def home():
 def add(a,b):
     result=a+b
 
+    # For keeping track of the calculation history
+    
     return jsonify({
            "num1":a,
            "num2":b,
