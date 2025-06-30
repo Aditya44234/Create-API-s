@@ -1,6 +1,8 @@
 
 from flask import Flask, jsonify, request, Response
+from datetime import datetime
 
+calculation_history = []
 
 app = Flask(__name__)
 @app.route("/")
@@ -14,11 +16,94 @@ def home():
     })
 
 
-# Another route with GET
+
+# Route with for calculation history
+@app.route("/history")
+def get_history():
+    if not calculation_history:
+        return jsonify({
+            "message": "No calculations have been performed yet."
+        }), 404
+    
+    return jsonify({
+        "history": calculation_history
+    })
+
+# Route to clear the calculation history
+# This will reset the calculation_history list to an empty list
+@app.route("/history/clear")
+def clear_history():
+   
+    global calculation_history
+
+    if len(calculation_history) == 0:
+        return jsonify({
+            "message": "Calculation history is already empty."
+        }), 404
+    
+    calculation_history = []
+    return jsonify({
+        "message": "Calculation history cleared."
+    })
+
+
+
+# Route to greet a user by name
+# This route takes a name as a URL parameter and returns a greeting message
 @app.route("/greet/<name>")
 def greet(name):
     return jsonify({
         "greeting":f"Hello , {name} ! "
+    })
+
+
+# Route to submit user data
+# This route accepts user data via query parameters and stores it in a list
+user_data = []
+@app.route("/submit")
+def submit_user():
+    
+    name=request.args.get('name')
+    role=request.args.get('role')
+    message=request.args.get('message')
+    id=request.args.get('id')
+
+
+    if not all([name,role,message,id]):
+        return jsonify({
+            "error":"All fields are required: name, role, message, id"
+        }), 400
+    
+    timestamp =datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    
+    entry={
+        "id":id,
+        "name":name,
+        "role":role,
+        "message":message,
+        "timestamp":timestamp
+    }
+
+    user_data.append(entry)
+    
+    return jsonify( {
+        "message": "Data submitted successfully",
+        "data": entry
+    })
+
+
+# Route to retrieve user history
+# This route returns the list of user data submitted via the /submit route
+@app.route("/user_history")
+def user_history():
+    if not user_data:
+        return jsonify({
+            "message": "No user data available."
+        }), 404
+    
+    return jsonify({
+        "user_data": user_data
     })
 
 @app.route('/add/<int:a>/<int:b>')
@@ -32,6 +117,8 @@ def add(a,b):
     })
 
 
+# Route to perform basic arithmetic operations
+# This route takes an operation (add, sub, mul, div) and two integers (
 @app.route("/calculate/<operation>/<int:a>/<int:b>")
 def calculate(operation,a,b):
     if(operation == "add"):
@@ -46,6 +133,19 @@ def calculate(operation,a,b):
         result = a / b
     else:
         return Response("Invalid operation", status=400)
+    
+
+    # For keeping track of the calculation history
+    calculation_history.append({
+        "operation": operation,
+        "num1": a,
+        "num2": b,
+        "result": result
+    })
+    # Keep track of the calculation history only last 10 calculations
+    if(len(calculation_history) > 10):
+        calculation_history.pop(0)
+
     return jsonify({
         "operation": operation,
         "num1": a,
@@ -54,14 +154,14 @@ def calculate(operation,a,b):
     })
 
 
+
+# Route to perform basic arithmetic operations using query parameters
 @app.route("/api/calculate")
 def calculate_query():
     op=request.args.get('op')
     a=request.args.get('a', type=int)
     b=request.args.get('b', type=int)
-
-
-    
+    # Validate the operation
 
 
     if op not in ['add', 'sub', 'mul', 'div']:
