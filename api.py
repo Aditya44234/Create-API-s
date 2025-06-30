@@ -1,6 +1,7 @@
 
 from flask import Flask, jsonify, request, Response
 from datetime import datetime
+import csv
 
 calculation_history = []
 
@@ -15,6 +16,24 @@ def home():
         "id": 4561
     })
 
+
+# Export route to export the pdf
+
+@app.route("/export")
+def export_csv():
+    def generate():
+        yield 'id,name,role,timestamp,message\n'
+        for entry in user_data:
+            line=f"{entry['id']},{entry['name']},{entry['role']},{entry['timestamp']},{entry['message']}\n"
+            yield line
+    return Response(generate(),mimetype='text/csv',
+                    headers={
+                            "Content-Disposition":"attachment;filename=user_data.csv"
+                            }
+                        
+                        )
+                        
+        
 
 
 # Route with for calculation history
@@ -103,7 +122,7 @@ def user_history():
         }), 404
     
     return jsonify({
-        "user_data": user_data
+        "user_data": user_data[::-1]
     })
 
 @app.route('/add/<int:a>/<int:b>')
@@ -194,6 +213,17 @@ def calculate_query():
         "num2": b,
         "result": result
     })
+
+@app.route("/api")
+def api():
+    return jsonify({
+        "API":"Application Programming Interface",
+        "Description":"Basically an API is a way to communicate between diffrent sites where diffrent sites can communicate using some http methods such as GET,POST,DELETE,PUT etc."
+    })
+
+
+
+
     
 
 if __name__ == '__main__':
