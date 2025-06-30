@@ -17,114 +17,6 @@ def home():
     })
 
 
-# Export route to export the pdf
-
-@app.route("/export")
-def export_csv():
-    def generate():
-        yield 'id,name,role,timestamp,message\n'
-        for entry in user_data:
-            line=f"{entry['id']},{entry['name']},{entry['role']},{entry['timestamp']},{entry['message']}\n"
-            yield line
-    return Response(generate(),mimetype='text/csv',
-                    headers={
-                            "Content-Disposition":"attachment;filename=user_data.csv"
-                            }
-                        
-                        )
-                        
-        
-
-
-# Route with for calculation history
-@app.route("/history")
-def get_history():
-    if not calculation_history:
-        return jsonify({
-            "message": "No calculations have been performed yet."
-        }), 404
-    
-    return jsonify({
-        "history": calculation_history
-    })
-
-# Route to clear the calculation history
-# This will reset the calculation_history list to an empty list
-@app.route("/history/clear")
-def clear_history():
-   
-    global calculation_history
-
-    if len(calculation_history) == 0:
-        return jsonify({
-            "message": "Calculation history is already empty."
-        }), 404
-    
-    calculation_history = []
-    return jsonify({
-        "message": "Calculation history cleared."
-    })
-
-
-
-# Route to greet a user by name
-# This route takes a name as a URL parameter and returns a greeting message
-@app.route("/greet/<name>")
-def greet(name):
-    return jsonify({
-        "greeting":f"Hello , {name} ! "
-    })
-
-
-# Route to submit user data
-# This route accepts user data via query parameters and stores it in a list
-user_data = []
-@app.route("/submit")
-def submit_user():
-    
-    name=request.args.get('name')
-    role=request.args.get('role')
-    message=request.args.get('message')
-    id=request.args.get('id')
-
-
-    if not all([name,role,message,id]):
-        return jsonify({
-            "error":"All fields are required: name, role, message, id"
-        }), 400
-    
-    timestamp =datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    
-    entry={
-        "id":id,
-        "name":name,
-        "role":role,
-        "message":message,
-        "timestamp":timestamp
-    }
-
-    user_data.append(entry)
-    
-    return jsonify( {
-        "message": "Data submitted successfully",
-        "data": entry
-    })
-
-
-# Route to retrieve user history
-# This route returns the list of user data submitted via the /submit route
-@app.route("/user_history")
-def user_history():
-    if not user_data:
-        return jsonify({
-            "message": "No user data available."
-        }), 404
-    
-    return jsonify({
-        "user_data": user_data[::-1]
-    })
-
 @app.route('/add/<int:a>/<int:b>')
 def add(a,b):
     result=a+b
@@ -221,6 +113,112 @@ def api():
         "Description":"Basically an API is a way to communicate between diffrent sites where diffrent sites can communicate using some http methods such as GET,POST,DELETE,PUT etc."
     })
 
+
+# Route with for calculation history
+@app.route("/history")
+def get_history():
+    if not calculation_history:
+        return jsonify({
+            "message": "No calculations have been performed yet."
+        }), 404
+    
+    return jsonify({
+        "history": calculation_history
+    })
+
+# Route to clear the calculation history
+# This will reset the calculation_history list to an empty list
+@app.route("/history/clear")
+def clear_history():
+   
+    global calculation_history
+
+    if len(calculation_history) == 0:
+        return jsonify({
+            "message": "Calculation history is already empty."
+        }), 404
+    
+    calculation_history = []
+    return jsonify({
+        "message": "Calculation history cleared."
+    })
+
+
+
+# Route to greet a user by name
+# This route takes a name as a URL parameter and returns a greeting message
+@app.route("/greet/<name>")
+def greet(name):
+    return jsonify({
+        "greeting":f"Hello , {name} ! "
+    })
+
+
+# Route to submit user data
+# This route accepts user data via query parameters and stores it in a list
+user_data = []
+@app.route("/submit")
+def submit_user():
+    
+    name=request.args.get('name')
+    role=request.args.get('role')
+    message=request.args.get('message')
+    id=request.args.get('id')
+
+
+    if not all([name,role,message,id]):
+        return jsonify({
+            "error":"All fields are required: name, role, message, id"
+        }), 400
+    
+    timestamp =datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    
+    entry={
+        "id":id,
+        "name":name,
+        "role":role,
+        "message":message,
+        "timestamp":timestamp
+    }
+
+    user_data.append(entry)
+    
+    return jsonify( {
+        "message": "Data submitted successfully",
+        "data": entry
+    })
+
+
+# Route to retrieve user history
+# This route returns the list of user data submitted via the /submit route
+@app.route("/user_history")
+def user_history():
+    if not user_data:
+        return jsonify({
+            "message": "No user data available."
+        }), 404
+    
+    return jsonify({
+        "user_data": user_data[::-1]
+    })
+
+
+# Export route to export the pdf
+
+@app.route("/export")
+def export_csv():
+    def generate():
+        yield 'id,name,role,timestamp,message\n'
+        for entry in user_data:
+            line=f"{entry['id']},{entry['name']},{entry['role']},{entry['timestamp']},{entry['message']}\n"
+            yield line
+    return Response(generate(),mimetype='text/csv',
+                    headers={
+                            "Content-Disposition":"attachment;filename=user_data.csv"
+                            }
+                        
+                        )
 
 
 
