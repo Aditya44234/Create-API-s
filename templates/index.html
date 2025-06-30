@@ -46,10 +46,10 @@
 
       if (input.type === "password") {
         input.type = "text";
-        icon.src = "{{ url_for('static', filename='eye.png') }}"; // hide icon
+        icon.src = "{{ url_for('static', filename='view.png') }}"; // hide icon
       } else {
         input.type = "password";
-        icon.src = "{{ url_for('static', filename='view.png') }}"; // show icon
+        icon.src = "{{ url_for('static', filename='eye.png') }}"; // show icon
       }
     }
   </script>
