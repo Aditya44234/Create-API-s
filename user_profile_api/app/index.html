@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Profile Submitter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f9f9f9;
+    }
+    h2 {
+      color: #333;
+    }
+    input, textarea {
+      padding: 10px;
+      width: 300px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #2f80ed;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1c60b3;
+    }
+    #response {
+      margin-top: 20px;
+      background: #e0ffe0;
+      padding: 15px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Register User Profile</h2>
+
+  <input type="text" id="name" placeholder="Your Name" required><br>
+  <input type="email" id="email" placeholder="Your Email" required><br>
+  <input type="text" id="role" placeholder="Your Role (e.g. Developer)" required><br>
+  <textarea id="message" placeholder="Your Message" rows="4"></textarea><br>
+
+  <button onclick="submitProfile()">Submit</button>
+
+  <div id="response"></div>
+
+  <script>
+    async function submitProfile() {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const role = document.getElementById('role').value;
+      const message = document.getElementById('message').value;
+
+      const data = { 
+        id: Date.now(),  // Temporary unique ID
+        name,
+        email,
+        role,
+        message 
+      };
+
+      const res = await fetch('http://localhost:5000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      let fetched_name=result.Entry.name;
+      fetched_name=fetched_name.toUpperCase();
+
+      document.getElementById('response').innerHTML = `
+        <strong>Heyy Welcome to the server ${fetched_name} </strong><br>
+      `;
+    }
+  </script>
+
+</body>
+</html>
